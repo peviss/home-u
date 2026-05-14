@@ -59,7 +59,7 @@ const dummyProperties = [
     description: "Charming 3-bed townhouse in historic district",
     price: 650000,
     bedrooms: 3,
-    bathrooms: 2.5,
+    bathrooms: 3,
     area: 1600,
     address: "555 Maple Street",
     city: "Boston",
