@@ -1,0 +1,24 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - web_node_modules:/app/node_modules
+    command: ["pnpm", "dev", "--", "--host", "0.0.0.0"]
+
+  web-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    profiles:
+      - prod
+
+volumes:
+  web_node_modules:
