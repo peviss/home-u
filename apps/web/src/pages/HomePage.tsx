@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { fetchProperties } from '../api/properties'
+import { buildPropertyListQuery, fetchProperties } from '../api/properties'
 import { shouldUseMockData } from '../api/mockMode'
 import type { Property } from '../types/property'
 import { HeroSearch } from '../components/HeroSearch'
@@ -62,8 +62,22 @@ export function HomePage() {
     setLoading(true)
     setError(null)
     try {
-      const data = await fetchProperties()
-      setItems(data)
+      if (shouldUseMockData()) {
+        const { items } = await fetchProperties()
+        setItems(items)
+      } else {
+        const qs = buildPropertyListQuery({
+          q: appliedHeroQuery,
+          city,
+          minPrice: filters.minPrice,
+          maxPrice: filters.maxPrice,
+          minBeds: filters.minBeds,
+          minBaths: filters.minBaths,
+          onlyAvailable: filters.onlyAvailable,
+        })
+        const { items } = await fetchProperties(qs)
+        setItems(items)
+      }
     } catch {
       setError(
         shouldUseMockData()
@@ -73,7 +87,7 @@ export function HomePage() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [appliedHeroQuery, city, filters])
 
   useEffect(() => {
     void load()
@@ -85,6 +99,9 @@ export function HomePage() {
   }, [items])
 
   const filtered = useMemo(() => {
+    if (!shouldUseMockData()) {
+      return items
+    }
     return items
       .filter((p) => matchesHeroQuery(p, appliedHeroQuery))
       .filter((p) => matchesFilters(p, filters, city))
